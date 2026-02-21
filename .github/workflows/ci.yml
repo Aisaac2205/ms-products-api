@@ -6,19 +6,19 @@
 # que nada se rompió. (Opción C del estándar)
 # ============================================================
 
-name: 🔧 API — Lint & Notify Tests
+name: API — Lint & Notify Tests
 
 on:
   push:
-    branches: [main, develop]
+    branches: [master, develop]
   pull_request:
-    branches: [main, develop]
+    branches: [master, develop]
 
 jobs:
 
   # ── STAGE 1: Lint del código Python ──────────────────────
   lint:
-    name: 🔍 Lint Python
+    name: Lint Python
     runs-on: ubuntu-latest
 
     steps:
@@ -37,7 +37,7 @@ jobs:
 
   # ── STAGE 2: Verificar que la app levanta ────────────────
   build:
-    name: 🔨 Build Check
+    name: Build Check
     runs-on: ubuntu-latest
     needs: [lint]
 
@@ -53,7 +53,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Verificar que FastAPI importa
-        run: python -c "from app.main import app; print('✅ App carga OK')"
+        run: python -c "from app.main import app; print('App carga OK')"
         env:
           DATABASE_URL: "postgresql://fake:fake@localhost:5432/fake"
           SECRET_KEY: "ci-secret-key"
@@ -61,7 +61,7 @@ jobs:
   # ── STAGE 3: Disparar el repo de tests ───────────────────
   # Solo en push a main/develop (no en PRs)
   trigger-tests:
-    name: 🧪 Disparar ms-products-tests
+    name: Disparar ms-products-tests
     runs-on: ubuntu-latest
     needs: [build]
     if: github.event_name == 'push'
@@ -77,13 +77,13 @@ jobs:
           script: |
             await github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
-              repo: 'ms-products-tests',      // ← nombre exacto del repo de tests
+              repo: 'ms-products-tests',
               workflow_id: 'ci.yml',
-              ref: 'main',
+              ref: 'master',
               inputs: {
                 triggered_by: 'ms-products-api',
                 commit_sha: context.sha,
                 branch: context.ref
               }
             });
-            console.log('✅ Tests repo disparado correctamente');
+            console.log('Tests repo disparado correctamente');

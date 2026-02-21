@@ -2,7 +2,7 @@
 
 Microservicio REST de gestión de productos construido con **FastAPI**, **PostgreSQL** y autenticación **JWT**.
 
-![CI](https://github.com/TU_USUARIO/ms-products-api/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/Aisaac2205/ms-products-api/actions/workflows/ci.yml/badge.svg)
 
 ## Stack
 
@@ -29,7 +29,7 @@ Microservicio REST de gestión de productos construido con **FastAPI**, **Postgr
 
 ```bash
 # 1. Clonar el repo
-git clone https://github.com/TU_USUARIO/ms-products-api.git
+git clone https://github.com/Aisaac2205/ms-products-api.git
 cd ms-products-api
 
 # 2. Crear entorno virtual
@@ -61,7 +61,7 @@ Documentación interactiva: `http://localhost:8000/docs`
 
 ## Tests E2E
 
-Los tests viven en el repo [ms-products-tests](https://github.com/TU_USUARIO/ms-products-tests).
+Los tests viven en el repo [ms-products-tests](https://github.com/Aisaac2205/ms-products-tests).
 Se ejecutan automáticamente cuando se hace push a `main` o `develop`.
 
 ## Estructura del proyecto
