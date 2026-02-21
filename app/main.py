@@ -29,6 +29,6 @@ app.include_router(auth.router, prefix="/auth", tags=["Auth"])
 app.include_router(products.router, prefix="/products", tags=["Products"])
 
 
-@app.get("/health", tags=["Health"])
+@app.api_route("/health", methods=["GET", "HEAD"], tags=["Health"])
 def health_check():
     return {"status": "ok", "service": "ms-products-api"}
