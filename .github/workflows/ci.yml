@@ -1,0 +1,89 @@
+# ============================================================
+# ms-products-api — .github/workflows/ci.yml
+#
+# Este pipeline corre cuando alguien modifica la API.
+# Al finalizar, dispara el repo de tests para verificar
+# que nada se rompió. (Opción C del estándar)
+# ============================================================
+
+name: 🔧 API — Lint & Notify Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+
+  # ── STAGE 1: Lint del código Python ──────────────────────
+  lint:
+    name: 🔍 Lint Python
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Instalar ruff
+        run: pip install ruff
+
+      - name: Correr Ruff
+        run: ruff check app/
+
+  # ── STAGE 2: Verificar que la app levanta ────────────────
+  build:
+    name: 🔨 Build Check
+    runs-on: ubuntu-latest
+    needs: [lint]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Verificar que FastAPI importa
+        run: python -c "from app.main import app; print('✅ App carga OK')"
+        env:
+          DATABASE_URL: "postgresql://fake:fake@localhost:5432/fake"
+          SECRET_KEY: "ci-secret-key"
+
+  # ── STAGE 3: Disparar el repo de tests ───────────────────
+  # Solo en push a main/develop (no en PRs)
+  trigger-tests:
+    name: 🧪 Disparar ms-products-tests
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.event_name == 'push'
+
+    steps:
+      - name: Llamar al workflow de tests
+        uses: actions/github-script@v7
+        with:
+          # PAT_TOKEN: Personal Access Token con permisos repo + workflow
+          # Crearlo en GitHub → Settings → Developer Settings → Personal Access Tokens
+          # Agregarlo como secret en este repo: Settings → Secrets → PAT_TOKEN
+          github-token: ${{ secrets.PAT_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: 'ms-products-tests',      // ← nombre exacto del repo de tests
+              workflow_id: 'ci.yml',
+              ref: 'main',
+              inputs: {
+                triggered_by: 'ms-products-api',
+                commit_sha: context.sha,
+                branch: context.ref
+              }
+            });
+            console.log('✅ Tests repo disparado correctamente');
