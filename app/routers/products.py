@@ -32,7 +32,7 @@ def list_products(
     _: str = Depends(decode_token),
 ):
     """Lista todos los productos activos con paginación."""
-    query = db.query(Product).filter(Product.is_active == True)
+    query = db.query(Product).filter(Product.is_active.is_(True))
     total = query.count()
     items = query.offset((page - 1) * page_size).limit(page_size).all()
 
