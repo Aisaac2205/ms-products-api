@@ -2,14 +2,22 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import products, auth
 from app.db.database import engine, Base
+from contextlib import asynccontextmanager
 
 # Crear todas las tablas al iniciar
 Base.metadata.create_all(bind=engine)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Solo corre cuando uvicorn levanta, no al importar
+    Base.metadata.create_all(bind=engine)
+    yield
 
 app = FastAPI(
     title="ms-products-api",
     description="Microservicio de productos con autenticación JWT",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
